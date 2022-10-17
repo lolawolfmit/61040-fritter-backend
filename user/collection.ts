@@ -100,11 +100,11 @@ class UserCollection {
     // unfollow a user
     if (userDetails.following && userDetails.unfollow) { // should just be one new following username
       const followedUser = await UserModel.findOne({username: userDetails.following as string});
-      const index = followedUser.followers.indexOf(userId as string, 0);
+      const index = followedUser.followers.indexOf(userId as string, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
       if (index > -1) {
         followedUser.followers.splice(index, 1);
       }
-      const index2 = user.following.indexOf(userDetails.following as string, 0);
+      const index2 = user.following.indexOf(userDetails.following as string, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
       if (index2 > -1) {
         user.following.splice(index2, 1);
       }
