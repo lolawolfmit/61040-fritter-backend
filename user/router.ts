@@ -125,6 +125,57 @@ router.put(
 );
 
 /**
+ * Follow a user.
+ * 
+ * @name PATCH /api/users/followers
+ * 
+ * @param following - The username of the user to follow
+ * 
+ * @throws {403} - If user is not logged in
+ * @throws {409} - If user is already following the user they are requesting to follow
+ */
+ router.patch(
+  '/followers',
+  [
+    userValidator.isUserLoggedIn,
+    userValidator.isUserAlreadyFollowingTargetUser
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const user = await UserCollection.updateOne(userId, req.body); // req.body should contain {following: username of user this user wants to follow}
+    res.status(200).json({
+      message: 'Successfully followed.',
+      user: util.constructUserResponse(user)
+    });
+  }
+);
+
+/**
+ * Unfollow a user.
+ * 
+ * @name DELETE /api/users/followers
+ * 
+ * @throws {403} - If user is not logged in
+ */
+ router.delete(
+  '/followers',
+  [
+    userValidator.isUserLoggedIn,
+    userValidator.isUserNotYetFollowingTargetUser
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    req.body.unfollow = true;
+    console.log(req.body);
+    const user = await UserCollection.updateOne(userId, req.body); // req.body should contain {following: username of user this user wants to unfollow}
+    res.status(200).json({
+      message: 'Successfully unfollowed.',
+      user: util.constructUserResponse(user)
+    });
+  }
+);
+
+/**
  * Delete a user.
  *
  * @name DELETE /api/users

@@ -20,8 +20,12 @@ class UserCollection {
    */
   static async addOne(username: string, password: string): Promise<HydratedDocument<User>> {
     const dateJoined = new Date();
+    let VSP = false;
+    let interests = new Array;
+    let followers = new Array;
+    let following = new Array;
 
-    const user = new UserModel({username, password, dateJoined});
+    const user = new UserModel({username, password, dateJoined, VSP, interests, followers, following});
     await user.save(); // Saves user to MongoDB
     return user;
   }
@@ -43,7 +47,7 @@ class UserCollection {
    * @return {Promise<HydratedDocument<User>> | Promise<null>} - The user with the given username, if any
    */
   static async findOneByUsername(username: string): Promise<HydratedDocument<User>> {
-    return UserModel.findOne({username: new RegExp(`^${username.trim()}$`, 'i')});
+    return UserModel.findOne({username: new RegExp(`^${username?.trim()}$`, 'i')});
   }
 
   /**
@@ -64,19 +68,48 @@ class UserCollection {
    * Update user's information
    *
    * @param {string} userId - The userId of the user to update
-   * @param {Object} userDetails - An object with the user's updated credentials
+   * @param {Object} userDetails - An object with the user's updated information
    * @return {Promise<HydratedDocument<User>>} - The updated user
    */
   static async updateOne(userId: Types.ObjectId | string, userDetails: any): Promise<HydratedDocument<User>> {
+    console.log(userDetails);
     const user = await UserModel.findOne({_id: userId});
+    // update password
     if (userDetails.password) {
       user.password = userDetails.password as string;
     }
-
+    // update username
     if (userDetails.username) {
       user.username = userDetails.username as string;
     }
-
+    // // update VSP status
+    // if (userDetails.VSP) {
+    //   user.VSP = userDetails.VSP as boolean;
+    // }
+    // update interests
+    if (userDetails.interests) { // just one new interest
+      user.interests.push(userDetails.interests as string)
+    }
+    // update following, will automatically update followers of new user
+    if (userDetails.following && !userDetails.unfollow) { // should just be one new following username
+      const followedUser = await UserModel.findOne({username: userDetails.following as string});
+      user.following.push(userDetails.following as string);
+      followedUser.followers.push(user.username);
+      await followedUser.save();
+    }
+    // unfollow a user
+    if (userDetails.following && userDetails.unfollow) { // should just be one new following username
+      const followedUser = await UserModel.findOne({username: userDetails.following as string});
+      const index = followedUser.followers.indexOf(userId as string, 0);
+      if (index > -1) {
+        followedUser.followers.splice(index, 1);
+      }
+      const index2 = user.following.indexOf(userDetails.following as string, 0);
+      if (index2 > -1) {
+        user.following.splice(index2, 1);
+      }
+      await followedUser.save();
+    }
     await user.save();
     return user;
   }

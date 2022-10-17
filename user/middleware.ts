@@ -102,6 +102,44 @@ const isUsernameNotAlreadyInUse = async (req: Request, res: Response, next: Next
 };
 
 /**
+ * Checks if a user is already following another user (cannot re-follow)
+ */
+const isUserAlreadyFollowingTargetUser = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+    if (user.following.includes(req.body.following)) {
+      res.status(409).json({
+        error: {
+          password: 'You are already following this user.'
+        }
+      });
+      return;
+    }
+  }
+  
+  next();
+};
+
+/**
+ * Checks if a user has not yet followed another user (cannot unfollow if never followed)
+ */
+ const isUserNotYetFollowingTargetUser = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+    if (!user.following.includes(req.body.following)) {
+      res.status(409).json({
+        error: {
+          password: 'You cannot unfollow a user you have never followed.'
+        }
+      });
+      return;
+    }
+  }
+  
+  next();
+};
+
+/**
  * Checks if the user is logged in, that is, whether the userId is set in session
  */
 const isUserLoggedIn = (req: Request, res: Response, next: NextFunction) => {
@@ -161,5 +199,7 @@ export {
   isAccountExists,
   isAuthorExists,
   isValidUsername,
-  isValidPassword
+  isValidPassword,
+  isUserNotYetFollowingTargetUser,
+  isUserAlreadyFollowingTargetUser
 };

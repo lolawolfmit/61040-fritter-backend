@@ -16,6 +16,7 @@ function changeUsername(fields) {
 }
 
 function changePassword(fields) {
+  console.log(fields);
   fetch('/api/users', {method: 'PUT', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
     .then(showResponse)
     .catch(showResponse);
@@ -35,6 +36,19 @@ function signIn(fields) {
 
 function signOut() {
   fetch('/api/users/session', {method: 'DELETE'})
+    .then(showResponse)
+    .catch(showResponse);
+}
+
+function followUser(fields) {
+  console.log(fields);
+  fetch('/api/users/followers', {method: 'PATCH', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
+    .then(showResponse)
+    .catch(showResponse);
+}
+
+function unfollowUser(fields) {
+  fetch('/api/users/followers', {method: 'DELETE', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
     .then(showResponse)
     .catch(showResponse);
 }
