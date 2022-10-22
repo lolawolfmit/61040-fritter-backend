@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
   <script src="/scripts/freet.js"></script>
   <script src="/scripts/user.js"></script>
+  <script src="/scripts/vsprequest.js"></script>
   <script src="/scripts/index.js"></script>
 </head>
 
@@ -103,6 +104,65 @@
             <input id="following" name="following">
           </div>
           <input type="submit" value="Unfollow User">
+        </form>
+
+        <form id="add-interest">
+          <h3>Add Interest</h3>
+          <div>
+            <label for="interests">Interest:</label>
+            <input id="interests" name="interests">
+          </div>
+          <input type="submit" value="Add Interest">
+        </form>
+
+        <form id="delete-interest">
+          <h3>Delete Interest</h3>
+          <div>
+            <label for="interests">Interest:</label>
+            <input id="interests" name="interests">
+          </div>
+          <input type="submit" value="Delete Interest">
+        </form>
+
+        <form id="make-vsp-request">
+          <h3>Make VSP Request</h3>
+          <div>
+            <label for="content">Justification:</label>
+            <input id="content" name="content">
+          </div>
+          <input type="submit" value="Make VSP Request">
+        </form>
+
+        <form id="accept-vsp-request">
+          <h3>Accept VSP Request</h3>
+          <div>
+            <label for="username">Username:</label>
+            <input id="username" name="username">
+          </div>
+          <input type="submit" value="Accept VSP Request">
+        </form>
+
+        <form id="revoke-vsp-status">
+          <h3>Revoke VSP Status</h3>
+          <div>
+            <label for="username">Username:</label>
+            <input id="username" name="username">
+          </div>
+          <input type="submit" value="Revoke VSP Status">
+        </form>
+
+        <form id="delete-vsp-request">
+          <h3>Delete VSP Request</h3>
+          <div>
+            <label for="username">Username:</label>
+            <input id="username" name="username">
+          </div>
+          <input type="submit" value="Delete VSP Request">
+        </form>
+
+        <form id="get-all-vsp-requests">
+          <h3>Get All VSP Requests</h3>
+          <input type="submit" value="Get All VSP Requests">
         </form>
 
         <form id="create-freet">

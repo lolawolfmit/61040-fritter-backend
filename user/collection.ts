@@ -72,43 +72,56 @@ class UserCollection {
    * @return {Promise<HydratedDocument<User>>} - The updated user
    */
   static async updateOne(userId: Types.ObjectId | string, userDetails: any): Promise<HydratedDocument<User>> {
-    console.log(userDetails);
     const user = await UserModel.findOne({_id: userId});
-    // update password
-    if (userDetails.password) {
-      user.password = userDetails.password as string;
-    }
-    // update username
-    if (userDetails.username) {
-      user.username = userDetails.username as string;
-    }
-    // // update VSP status
-    // if (userDetails.VSP) {
-    //   user.VSP = userDetails.VSP as boolean;
-    // }
-    // update interests
-    if (userDetails.interests) { // just one new interest
-      user.interests.push(userDetails.interests as string)
-    }
-    // update following, will automatically update followers of new user
-    if (userDetails.following && !userDetails.unfollow) { // should just be one new following username
-      const followedUser = await UserModel.findOne({username: userDetails.following as string});
-      user.following.push(userDetails.following as string);
-      followedUser.followers.push(user.username);
-      await followedUser.save();
-    }
-    // unfollow a user
-    if (userDetails.following && userDetails.unfollow) { // should just be one new following username
-      const followedUser = await UserModel.findOne({username: userDetails.following as string});
-      const index = followedUser.followers.indexOf(userId as string, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-      if (index > -1) {
-        followedUser.followers.splice(index, 1);
+    // update VSP (DO NOT REARRANGE ORDER OF IF STATEMENTS)
+    if (userDetails.VSP) {
+      if (userDetails.revoke) {
+        user.VSP = false;
       }
-      const index2 = user.following.indexOf(userDetails.following as string, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-      if (index2 > -1) {
-        user.following.splice(index2, 1);
+      else {
+        user.VSP = true;
       }
-      await followedUser.save();
+    }
+    else {
+      // update password
+      if (userDetails.password) {
+        user.password = userDetails.password as string;
+      }
+      // update username
+      if (userDetails.username) {
+        user.username = userDetails.username as string;
+      }
+      // add interest
+      if (userDetails.interests && !userDetails.deleteInterest) {
+        user.interests.push(userDetails.interests as string)
+      }
+      // delete interest
+      if (userDetails.interests && userDetails.deleteInterest) {
+        const index = user.interests.indexOf(userDetails.interests, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+        if (index > -1) {
+          user.interests.splice(index, 1);
+        }
+      }
+      // update following, will automatically update followers of new user
+      if (userDetails.following && !userDetails.unfollow) { // should just be one new following username
+        const followedUser = await UserModel.findOne({username: userDetails.following as string});
+        user.following.push(userDetails.following as string);
+        followedUser.followers.push(user.username);
+        await followedUser.save();
+      }
+      // unfollow a user
+      if (userDetails.following && userDetails.unfollow) { // should just be one new following username
+        const followedUser = await UserModel.findOne({username: userDetails.following as string});
+        const index = followedUser.followers.indexOf(userId as string, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+        if (index > -1) {
+          followedUser.followers.splice(index, 1);
+        }
+        const index2 = user.following.indexOf(userDetails.following as string, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+        if (index2 > -1) {
+          user.following.splice(index2, 1);
+        }
+        await followedUser.save();
+      }
     }
     await user.save();
     return user;

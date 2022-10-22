@@ -41,7 +41,6 @@ function signOut() {
 }
 
 function followUser(fields) {
-  console.log(fields);
   fetch('/api/users/followers', {method: 'PATCH', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
     .then(showResponse)
     .catch(showResponse);
@@ -51,4 +50,16 @@ function unfollowUser(fields) {
   fetch('/api/users/followers', {method: 'DELETE', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
     .then(showResponse)
     .catch(showResponse);
+}
+
+function addInterest(fields) {
+  fetch('/api/users/interests', {method: 'PATCH', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
+  .then(showResponse)
+  .catch(showResponse);
+}
+
+function deleteInterest(fields) {
+  fetch('/api/users/interests', {method: 'DELETE', body: JSON.stringify(fields), headers: {'Content-Type': 'application/json'}})
+  .then(showResponse)
+  .catch(showResponse);
 }

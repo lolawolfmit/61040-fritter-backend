@@ -121,7 +121,7 @@ const isUserAlreadyFollowingTargetUser = async (req: Request, res: Response, nex
 };
 
 /**
- * Checks if a user has not yet followed another user (cannot unfollow if never followed)
+ * Checks if a user has not yet followed a certain user (cannot unfollow if never followed)
  */
  const isUserNotYetFollowingTargetUser = async (req: Request, res: Response, next: NextFunction) => {
   if (req.session.userId) {
@@ -130,6 +130,44 @@ const isUserAlreadyFollowingTargetUser = async (req: Request, res: Response, nex
       res.status(409).json({
         error: {
           password: 'You cannot unfollow a user you have never followed.'
+        }
+      });
+      return;
+    }
+  }
+  
+  next();
+};
+
+/**
+ * Checks if the user has already added a certain interest (cannot be added again)
+ */
+ const isUserAlreadyAddedInterest = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+    if (user.interests.includes(req.body.interests)) {
+      res.status(409).json({
+        error: {
+          password: 'You have already added this interest.'
+        }
+      });
+      return;
+    }
+  }
+  
+  next();
+};
+
+/**
+ * Checks if the user has not yet added a certain interest (cannot be deleted)
+ */
+ const isUserNotYetAddedInterest = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+    if (!user.interests.includes(req.body.interests)) {
+      res.status(409).json({
+        error: {
+          password: 'You are trying to delete an interest you have not yet added.'
         }
       });
       return;
@@ -201,5 +239,7 @@ export {
   isValidUsername,
   isValidPassword,
   isUserNotYetFollowingTargetUser,
-  isUserAlreadyFollowingTargetUser
+  isUserAlreadyFollowingTargetUser,
+  isUserAlreadyAddedInterest,
+  isUserNotYetAddedInterest
 };

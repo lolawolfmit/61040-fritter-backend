@@ -131,6 +131,7 @@ router.put(
  * 
  * @param following - The username of the user to follow
  * 
+ * @return {UserResponse} - The updated user
  * @throws {403} - If user is not logged in
  * @throws {409} - If user is already following the user they are requesting to follow
  */
@@ -155,6 +156,7 @@ router.put(
  * 
  * @name DELETE /api/users/followers
  * 
+ * @return {UserResponse} - The updated user
  * @throws {403} - If user is not logged in
  */
  router.delete(
@@ -166,7 +168,6 @@ router.put(
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     req.body.unfollow = true;
-    console.log(req.body);
     const user = await UserCollection.updateOne(userId, req.body); // req.body should contain {following: username of user this user wants to unfollow}
     res.status(200).json({
       message: 'Successfully unfollowed.',
@@ -174,6 +175,61 @@ router.put(
     });
   }
 );
+
+/**
+ * Add an interest.
+ * 
+ * @name PATCH /api/users/interests
+ * 
+ * @param interest - The interest to add to the user's profile
+ * 
+ * @return {UserResponse} - The updated user
+ * @throws {403} - If user is not logged in
+ * @throws {409} - If user already has that interest
+ */
+router.patch(
+  '/interests',
+  [
+    userValidator.isUserLoggedIn,
+    userValidator.isUserAlreadyAddedInterest
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const user = await UserCollection.updateOne(userId, req.body); // req.body should contain {following: username of user this user wants to unfollow}
+    res.status(200).json({
+      message: 'Successfully added interest.',
+      user: util.constructUserResponse(user)
+    });
+  }
+)
+
+/**
+ * Delete an interest.
+ * 
+ * @name DELETE /api/users/interests
+ * 
+ * @param interests - The interest to delete from the user's profile
+ * 
+ * @return {UserResponse} - The updated user
+ * @throws {403} - If user is not logged in
+ * @throws {409} - If user does not already have that interest
+ */
+ router.delete(
+  '/interests',
+  [
+    userValidator.isUserLoggedIn,
+    userValidator.isUserNotYetAddedInterest
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    req.body.deleteInterest = true;
+    const user = await UserCollection.updateOne(userId, req.body); // req.body should contain {following: username of user this user wants to unfollow}
+    res.status(200).json({
+      message: 'Successfully deleted interest.',
+      user: util.constructUserResponse(user)
+    });
+  }
+)
 
 /**
  * Delete a user.

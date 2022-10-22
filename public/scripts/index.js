@@ -40,7 +40,14 @@ const formsAndHandlers = {
   'edit-freet': editFreet,
   'delete-freet': deleteFreet,
   'follow-user': followUser,
-  'unfollow-user': unfollowUser
+  'unfollow-user': unfollowUser,
+  'add-interest': addInterest,
+  'delete-interest': deleteInterest,
+  'make-vsp-request': makeVSPRequest,
+  'accept-vsp-request': acceptVSPRequest,
+  'delete-vsp-request': deleteVSPRequest,
+  'get-all-vsp-requests': getAllVSPRequests,
+  'revoke-vsp-status': revokeVSPStatus
 };
 
 // Attach handlers to forms
