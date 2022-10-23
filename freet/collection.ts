@@ -95,7 +95,7 @@ class FreetCollection {
     const freet = await FreetModel.findOne({_id: freetId});
     freet.endorsements.push(user.username);
     await freet.save();
-    return freet; // TODO check that this is the correct thing to return
+    return freet;
   }
 
   /**
@@ -113,7 +113,7 @@ class FreetCollection {
           freet.endorsements.splice(index, 1);
         }
       await freet.save();
-      return freet; // TODO check that this is the correct thing to return
+      return freet;
     }
 
   /**
@@ -128,7 +128,7 @@ class FreetCollection {
     const freet = await FreetModel.findOne({_id: freetId});
     freet.denouncements.push(user.username);
     await freet.save();
-    return freet; // TODO check that this is the correct thing to return
+    return freet;
   }
 
   /**
@@ -146,7 +146,7 @@ class FreetCollection {
           freet.denouncements.splice(index, 1);
         }
       await freet.save();
-      return freet; // TODO check that this is the correct thing to return
+      return freet;
     }
 
   /**
