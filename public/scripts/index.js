@@ -47,7 +47,12 @@ const formsAndHandlers = {
   'accept-vsp-request': acceptVSPRequest,
   'delete-vsp-request': deleteVSPRequest,
   'get-all-vsp-requests': getAllVSPRequests,
-  'revoke-vsp-status': revokeVSPStatus
+  'revoke-vsp-status': revokeVSPStatus,
+  'load-homepage': loadHomepage,
+  'endorse-freet': endorseFreet,
+  'denounce-freet': denounceFreet,
+  'unendorse-freet': unendorseFreet,
+  'undenounce-freet': undenounceFreet
 };
 
 // Attach handlers to forms

@@ -91,11 +91,30 @@ class FreetCollection {
    * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
    */
   static async addOneEndorsement(freetId: Types.ObjectId | string, userId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+    const user = await UserCollection.findOneByUserId(userId as string);
     const freet = await FreetModel.findOne({_id: freetId});
-    freet.endorsements.push(userId as string);
+    freet.endorsements.push(user.username);
     await freet.save();
-    return freet.populate('authorId'); // TODO check that this is the correct thing to return
+    return freet; // TODO check that this is the correct thing to return
   }
+
+  /**
+   * Delete an endorsement from a freet
+   * 
+   * @param {string} freetId - The id of the freet to be updated
+   * @param {string} userId - The id of the user unendorsing the freet
+   * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
+   */
+     static async deleteOneEndorsement(freetId: Types.ObjectId | string, userId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+      const user = await UserCollection.findOneByUserId(userId as string);
+      const freet = await FreetModel.findOne({_id: freetId});
+      const index = freet.endorsements.indexOf(user.username, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+        if (index > -1) {
+          freet.endorsements.splice(index, 1);
+        }
+      await freet.save();
+      return freet; // TODO check that this is the correct thing to return
+    }
 
   /**
    * Update a freet with a denouncement
@@ -105,11 +124,30 @@ class FreetCollection {
    * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
    */
    static async addOneDenouncement(freetId: Types.ObjectId | string, userId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+    const user = await UserCollection.findOneByUserId(userId as string);
     const freet = await FreetModel.findOne({_id: freetId});
-    freet.denouncements.push(userId as string);
+    freet.denouncements.push(user.username);
     await freet.save();
-    return freet.populate('authorId'); // TODO check that this is the correct thing to return
+    return freet; // TODO check that this is the correct thing to return
   }
+
+  /**
+   * Delete an denouncement from a freet
+   * 
+   * @param {string} freetId - The id of the freet to be updated
+   * @param {string} userId - The id of the user unendorsing the freet
+   * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
+   */
+     static async deleteOneDenouncement(freetId: Types.ObjectId | string, userId: Types.ObjectId | string): Promise<HydratedDocument<Freet>> {
+      const user = await UserCollection.findOneByUserId(userId as string);
+      const freet = await FreetModel.findOne({_id: freetId});
+      const index = freet.denouncements.indexOf(user.username, 0); // adapted from: https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+        if (index > -1) {
+          freet.denouncements.splice(index, 1);
+        }
+      await freet.save();
+      return freet; // TODO check that this is the correct thing to return
+    }
 
   /**
    * Delete a freet with given freetId.

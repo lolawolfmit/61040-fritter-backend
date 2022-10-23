@@ -4,6 +4,8 @@ import FreetCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as freetValidator from '../freet/middleware';
 import * as util from './util';
+import UserCollection from '../user/collection';
+import FreetModel from './model';
 
 const router = express.Router();
 
@@ -50,37 +52,37 @@ router.get(
 
 /**
  * Get the last 20 freets that accounts the author is following have posted.
+ * Returns fewer freets if there are less than 20.
  * 
- * @name GET /api/homepage/freets?authorId=id
+ * @name GET /api/freets/homepage
  *
  * @return {FreetResponse[]} - An array of freets created by user with id, authorId
  * @throws {400} - If authorId is not given
  * @throws {404} - If no user has given authorId
  */
  router.get(
-  '/',
-  async (req: Request, res: Response, next: NextFunction) => {
-    // Check if authorId query parameter was supplied
-    if (req.query.author !== undefined) {
-      next();
-      return;
-    }
-
-    const allFreets = await FreetCollection.findAll();
-    const response = allFreets.map(util.constructFreetResponse);
-    res.status(200).json(response);
-  },
+  '/homepage',
   [
-    userValidator.isAuthorExists
+    userValidator.isUserLoggedIn
   ],
   async (req: Request, res: Response) => {
-    // TODO figure out how to pull all freets
-    // could for loop over all accounts the user is following, then
-    // get all their freets, sort them by time, and take the top 20,
-    // but that might take too much time on a large scale
-    const authorFreets = await FreetCollection.findAllByUsername(req.query.author as string);
-    const response = authorFreets.map(util.constructFreetResponse);
-    res.status(200).json(response);
+    const user = await UserCollection.findOneByUserId(req.session.userId as string);
+    const userFollowing = user.following;
+    if (!userFollowing.length) {
+      const response = userFollowing;
+      res.status(200).json(response);
+    }
+    else {
+      let allFreets = await FreetCollection.findAllByUsername(userFollowing[0] as string);
+      for (let i = 1; i < userFollowing.length; i++) {
+        const authorFreets = await FreetCollection.findAllByUsername(userFollowing[i] as string);
+        allFreets = allFreets.concat(authorFreets);
+      }
+      allFreets.sort((a, b) => b.dateModified.getTime() - a.dateModified.getTime());
+      allFreets = allFreets.slice(0, 20);
+      const response = allFreets.map(util.constructFreetResponse);
+      res.status(200).json(response);
+    }
   }
 );
 
@@ -169,36 +171,103 @@ router.put(
 );
 
 /**
- * Endorse or denounce a freet
+ * Endorse a freet
  * 
- * @name PATCH /api/freets/:id
+ * @name PATCH /api/freets/endorsements
  * 
  * @return {FreetResponse} - the updated freet
  * @throws {403} - if the user is not logged in or not the author of
  *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
  * @throws {404} - If the freetId is not valid
  */
- router.put(
-  '/:freetId?',
+ router.patch(
+  '/endorsements',
   [
     // userValidator.isUserLoggedIn, // TODO FIX
     freetValidator.isFreetExists
   ],
   async (req: Request, res: Response) => {
-    if (req.params.endorse) {
-      const freet = await FreetCollection.addOneEndorsement(req.params.freetId, req.session.userId);
+    const freet = await FreetCollection.addOneEndorsement(req.body.freetId, req.session.userId);
       res.status(200).json({
-        message: 'Your freet was endorsed successfully.',
+        message: 'Freet was endorsed successfully.',
         freet: util.constructFreetResponse(freet)
       });
-    }
-    if (req.params.denounce) {
-      const freet = await FreetCollection.addOneDenouncement(req.params.freetId, req.session.userId);
+  }
+);
+
+/**
+ * Unendorse a freet
+ * 
+ * @name PATCH /api/freets/unendorsements
+ * 
+ * @return {FreetResponse} - the updated freet
+ * @throws {403} - if the user is not logged in or not the author of
+ *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
+ * @throws {404} - If the freetId is not valid
+ */
+ router.patch(
+  '/unendorsements',
+  [
+    // userValidator.isUserLoggedIn, // TODO FIX
+    freetValidator.isFreetExists
+  ],
+  async (req: Request, res: Response) => {
+    console.log(req.body);
+    const freet = await FreetCollection.deleteOneEndorsement(req.body.freetId, req.session.userId);
       res.status(200).json({
-        message: 'Your freet was denounced successfully.',
+        message: 'Freet was unendorsed successfully.',
         freet: util.constructFreetResponse(freet)
       });
-    }
+  }
+);
+
+/**
+ * Denounce a freet
+ * 
+ * @name PATCH /api/freets/denouncements
+ * 
+ * @return {FreetResponse} - the updated freet
+ * @throws {403} - if the user is not logged in or not the author of
+ *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
+ * @throws {404} - If the freetId is not valid
+ */
+ router.patch(
+  '/denouncements',
+  [
+    // userValidator.isUserLoggedIn, // TODO FIX
+    freetValidator.isFreetExists
+  ],
+  async (req: Request, res: Response) => {
+    const freet = await FreetCollection.addOneDenouncement(req.body.freetId, req.session.userId);
+      res.status(200).json({
+        message: 'Freet was denounced successfully.',
+        freet: util.constructFreetResponse(freet)
+      });
+  }
+);
+
+/**
+ * Undenounce a freet
+ * 
+ * @name DELETE /api/freets/undenouncements
+ * 
+ * @return {FreetResponse} - the updated freet
+ * @throws {403} - if the user is not logged in or not the author of
+ *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
+ * @throws {404} - If the freetId is not valid
+ */
+ router.patch(
+  '/undenouncements',
+  [
+    // userValidator.isUserLoggedIn, // TODO FIX
+    freetValidator.isFreetExists
+  ],
+  async (req: Request, res: Response) => {
+    const freet = await FreetCollection.deleteOneDenouncement(req.body.freetId, req.session.userId);
+      res.status(200).json({
+        message: 'Freet was undenounced successfully.',
+        freet: util.constructFreetResponse(freet)
+      });
   }
 );
 
