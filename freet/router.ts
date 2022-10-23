@@ -56,9 +56,8 @@ router.get(
  * 
  * @name GET /api/freets/homepage
  *
- * @return {FreetResponse[]} - An array of freets created by user with id, authorId
- * @throws {400} - If authorId is not given
- * @throws {404} - If no user has given authorId
+ * @return {FreetResponse[]} - An array of freets from users the user is following
+ * @throws {403} - If user is not logged in
  */
  router.get(
   '/homepage',
@@ -176,8 +175,7 @@ router.put(
  * @name PATCH /api/freets/endorsements
  * 
  * @return {FreetResponse} - the updated freet
- * @throws {403} - if the user is not logged in or not the author of
- *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
+ * @throws {403} - If the user is not logged in
  * @throws {404} - If the freetId is not valid
  * @throws {409} - If the user has already endorsed or denounced the freet
  * @throws {403} - If freet is an opinion
@@ -186,7 +184,7 @@ router.put(
  router.patch(
   '/endorsements',
   [
-    // userValidator.isUserLoggedIn, // TODO FIX
+    userValidator.isUserLoggedIn,
     freetValidator.isFreetExists,
     freetValidator.isUserAlreadyEndorsed,
     freetValidator.isUserAlreadyDenounced,
@@ -208,8 +206,7 @@ router.put(
  * @name PATCH /api/freets/unendorsements
  * 
  * @return {FreetResponse} - the updated freet
- * @throws {403} - if the user is not logged in or not the author of
- *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
+ * @throws {403} - if the user is not logged in
  * @throws {404} - If the freetId is not valid
  * @throws {409} - If the user has not yet endorsed the freet
  * @throws {403} - If freet is an opinion
@@ -218,7 +215,7 @@ router.put(
  router.patch(
   '/unendorsements',
   [
-    // userValidator.isUserLoggedIn, // TODO FIX
+    userValidator.isUserLoggedIn,
     freetValidator.isFreetExists,
     freetValidator.isUserNotYetEndorsed,
     freetValidator.isFreetAFact,
@@ -240,8 +237,7 @@ router.put(
  * @name PATCH /api/freets/denouncements
  * 
  * @return {FreetResponse} - the updated freet
- * @throws {403} - if the user is not logged in or not the author of
- *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
+ * @throws {403} - if the user is not logged in
  * @throws {404} - If the freetId is not valid
  * @throws {409} - If the user has already endorsed or denounced the freet
  * @throws {403} - If freet is an opinion
@@ -250,7 +246,7 @@ router.put(
  router.patch(
   '/denouncements',
   [
-    // userValidator.isUserLoggedIn, // TODO FIX
+    userValidator.isUserLoggedIn,
     freetValidator.isFreetExists,
     freetValidator.isUserAlreadyDenounced,
     freetValidator.isUserAlreadyEndorsed,
@@ -272,8 +268,7 @@ router.put(
  * @name DELETE /api/freets/undenouncements
  * 
  * @return {FreetResponse} - the updated freet
- * @throws {403} - if the user is not logged in or not the author of
- *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
+ * @throws {403} - if the user is not logged in
  * @throws {404} - If the freetId is not valid
  * @throws {409} - If the user has not yet denounced the freet
  * @throws {403} - If freet is an opinion
@@ -282,7 +277,7 @@ router.put(
  router.patch(
   '/undenouncements',
   [
-    // userValidator.isUserLoggedIn, // TODO FIX
+    userValidator.isUserLoggedIn,
     freetValidator.isFreetExists,
     freetValidator.isUserNotYetDenounced,
     freetValidator.isFreetAFact,

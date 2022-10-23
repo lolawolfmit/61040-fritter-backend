@@ -115,7 +115,7 @@ router.put(
  *
  * @name GET /api/vsprequest
  *
- * @return {VSPRequestResponse[]} - The updated request
+ * @return {VSPRequestResponse[]} - The list of requests
  * @throws {403} - If the user is not signed in
  * @throws {401} - If the user does not have admin credentials
  */

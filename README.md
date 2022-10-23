@@ -168,57 +168,6 @@ This renders the `index.html` file that will be used to interact with the backen
 - `403` if the user is not logged in
 - `409` if user is not yet following the user they are requesting to unfollow
 
-#### `POST /api/users/VSP` - Send request to be considered as a Verified Scientific Professional
-
-**Body**
-
-- `content` _{string}_ - The argument for why a user should be a VSP
-
-**Returns**
-
-- A success message
-- An object with the updated user details (without password) (requestedVSP field will be updated to true)
-
-**Throws**
-
-- `403` if the user is not logged in
-- `409` if the user is already a VSP
-- `409` if the user has already submitted a VSP request
-
-#### `PATCH /api/users/VSP` - Accept a VSP request
-
-**Body**
-
-- `username` _{string}_ - The username of the user to be made a VSP
-
-**Returns**
-
-- A success message
-- An object with the updated user details (without password) (VSP field will be updated to true)
-
-**Throws**
-
-- `403` if the user is not logged in
-- `404` if the user is not authorized to accept a VSP request
-- `409` if the user is already a VSP
-
-#### `DELETE /api/users/VSP` - Remove a user's VSP status
-
-**Body**
-
-- `username` _{string}_ - The username of the user whose status is being revoked
-
-**Returns**
-
-- A success message
-- An object with the updated user details (without password) (VSP field will be updated to false)
-
-**Throws**
-
-- `403` if the user is not logged in
-- `404` if the user is not authorized to revoke VSP status
-- `409` if the user is already not a VSP
-
 #### `PATCH /api/users/interests` - Add an interest to a user's profile
 
 **Body**
@@ -251,44 +200,17 @@ This renders the `index.html` file that will be used to interact with the backen
 - `403` if the user is not logged in
 - `409` if the user does not have that interest
 
-#### `GET /api/users/homepage` - Retrieve freets to populate a user's homepage
+#### `GET /api/users/recommended` - Retrieve recommended users to follow based on a user's interests
 
 **Returns**
 
 - A success message
-- <=20 of the most recent freets from accounts the user follows
+- An object with a list of recommended users
 
 **Throws**
 
 - `403` if the user is not logged in
-
-#### `PATCH /api/freets/endorsements/:freetId?` - Add the user to the list of users endorsing a freet
-
-**Returns**
-
-- A success message
-- An object with the updated freet details
-
-**Throws**
-
-- `403` if the user is not logged in
-- `404` if the user is not a VSP
-- `404` if the freet is labeled as an opinion
-- `409` if the user is already denouncing the freet
-
-#### `PATCH /api/freets/denouncements/:freetId?` - Add the user to the list of users denouncing a freet
-
-**Returns**
-
-- A success message
-- An object with the updated freet details
-
-**Throws**
-
-- `403` if the user is not logged in
-- `404` if the user is not a VSP
-- `404` if the freet is labeled as an opinion
-- `409` if the user is already denouncing the freet
+- `404` if the user does not have any interests
 
 #### `DELETE /api/users` - Delete user
 
@@ -299,3 +221,153 @@ This renders the `index.html` file that will be used to interact with the backen
 **Throws**
 
 - `403` if the user is not logged in
+
+
+#### `GET /api/users/homepage` - Get the last 20 freets that accounts the author is following have posted.Returns fewer freets if there are less than 20.
+
+**Returns**
+
+- A success message
+- <=20 of the most recent freets from accounts the user follows
+
+**Throws**
+
+- `403` if the user is not logged in
+
+#### `PATCH /api/freets/endorsements` - Add the user to the list of users endorsing a freet
+
+**Returns**
+
+- A success message
+- An object with the updated freet details
+
+**Throws**
+
+ - `403` if the user is not logged in
+ - `404` if the freetId is not valid
+ - `409` if the user has already endorsed or denounced the freet
+ - `403` if freet is an opinion
+ - `403` if user is not a VSP
+
+#### `PATCH /api/freets/unendorsements` - Remove the user from the list of users endorsing a freet
+
+**Returns**
+
+- A success message
+- An object with the updated freet details
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the freetId is not valid
+- `409` if the user has not yet endorsed the freet
+- `403` if freet is an opinion
+- `403` if user is not a VSP
+
+#### `PATCH /api/freets/denouncements` - Add the user to the list of users denouncing a freet
+
+**Returns**
+
+- A success message
+- An object with the updated freet details
+
+**Throws**
+
+ - `403` if the user is not logged in
+ - `404` if the freetId is not valid
+ - `409` if the user has already endorsed or denounced the freet
+ - `403` if freet is an opinion
+ - `403` if user is not a VSP
+
+#### `PATCH /api/freets/undenouncements` - Remove the user from the list of users denouncing a freet
+
+**Returns**
+
+- A success message
+- An object with the updated freet details
+
+**Throws**
+
+- `403` if the user is not logged in
+- `404` if the freetId is not valid
+- `409` if the user has not yet denounced the freet
+- `403` if freet is an opinion
+- `403` if user is not a VSP
+
+#### `POST /api/vsprequest` - Send request to be considered as a Verified Scientific Professional
+
+**Body**
+
+- `content` _{string}_ - The argument for why a user should be a VSP
+
+**Returns**
+
+- A success message
+- The new VSP request
+
+**Throws**
+
+- `403` if the user is not logged in
+- `409` if the user is already a VSP or has already created a request
+
+#### `PUT /api/vsprequest` - Accept a VSP request
+
+**Body**
+
+- `username` _{string}_ - The username of the user to be made a VSP
+
+**Returns**
+
+- A success message
+- An object with the updated user details (without password) and the updated VSP request
+
+**Throws**
+
+- `403` if the user is not signed in
+- `401` if the user does not have admin credentials
+- `404` if the request does not exist
+- `409` if the request was already accepted
+
+#### `DELETE /api/users/VSP` - Remove a user's VSP status. This function makes the assumption that the user has created a VSP request that was granted.
+
+**Body**
+
+- `username` _{string}_ - The username of the user whose status is being revoked
+
+**Returns**
+
+- A success message
+- An object with the updated user details (without password) and the updated VSP request
+
+**Throws**
+
+- `403` if the user is not signed in
+- `401` if the user does not have admin credentials
+- `404` if the request does not exist
+- `409` if the request has not yet been granted
+
+#### `GET /api/vsprequest` - Get all VSP requests that have not been accepted.
+
+**Returns**
+
+- A success message
+- The list of requests that have not been accepted
+
+**Throws**
+
+- `403` if the user is not signed in
+- `401` if the user does not have admin credentials
+
+#### `DELETE /api/vsprequest` - Delete a VSP request.
+
+**Body**
+
+- `username` _{string}_ - The username of the user who made the request
+
+**Returns**
+
+- A success message
+
+**Throws**
+- `403` if the user is not signed in
+- `401` if the user does not have admin credentials
