@@ -63,3 +63,9 @@ function deleteInterest(fields) {
   .then(showResponse)
   .catch(showResponse);
 }
+
+function getRecommended() {
+  fetch('/api/users/recommended')
+  .then(showResponse)
+  .catch(showResponse);
+}

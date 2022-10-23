@@ -1,6 +1,7 @@
 import type {HydratedDocument, Types} from 'mongoose';
 import type {User} from './model';
 import UserModel from './model';
+import FreetModel, { Freet } from '../freet/model';
 
 /**
  * This file contains a class with functionality to interact with users stored
@@ -63,6 +64,45 @@ class UserCollection {
       password
     });
   }
+
+  /**
+   * Retrieve recommended users to follow based on a user's interests.
+   * 
+   * @param {string} userId - The userId of user to generate recommendations for
+   * @return {Promise<HydratedDocument<User>[]>} - The recommended accounts to follow
+   */
+  static async findRecommended(userId: Types.ObjectId | string): Promise<HydratedDocument<User>[]> {
+      const user = await UserModel.findOne({_id: userId});
+      const userInterests = user.interests;
+      const userFollowing = user.following;
+      const allFreets = await FreetModel.find({}).sort({dateModified: -1});
+      let freetsToCheck: Freet[] = [];
+      // get all freets from users the user isn't following
+      for (let eachFreet of allFreets) {
+        let freetAuthor = await this.findOneByUserId(eachFreet.authorId);
+        if (!userFollowing.includes(freetAuthor.username)) {
+          freetsToCheck.push(eachFreet);
+        }
+      }
+      let interestingFreets: Freet[] = [];
+      // check each freet for interest
+      for (let eachFreet of freetsToCheck) {
+        for (let eachInterest of userInterests) {
+          if (eachFreet.content.includes(eachInterest as string)) {
+            interestingFreets.push(eachFreet);
+            break;
+          }
+        }
+      }
+      let authorsToFollow: HydratedDocument<User>[] = [];
+      for (let eachFreet of interestingFreets) {
+        let freetAuthor = await this.findOneByUserId(eachFreet.authorId);
+        if (!authorsToFollow.includes(freetAuthor)) {
+          authorsToFollow.push(freetAuthor);
+        }
+      }
+      return authorsToFollow;
+    }
 
   /**
    * Update user's information
@@ -138,5 +178,6 @@ class UserCollection {
     return user !== null;
   }
 }
+
 
 export default UserCollection;

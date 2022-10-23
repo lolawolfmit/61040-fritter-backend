@@ -255,4 +255,28 @@ router.delete(
   }
 );
 
+/**
+ * Retrieve recommended users to follow based on a user's interests.
+ * 
+ * @name GET /api/users/recommended
+ * 
+ * @return {UserResponse[]} - An array of recommended users
+ * @throws {403} - If the user is not logged in
+ */
+ router.get(
+  '/recommended',
+  [
+    userValidator.isUserLoggedIn
+  ],
+  async (req: Request, res: Response) => {
+    const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    const allUsers = await UserCollection.findRecommended(userId);
+    // const response = allUsers.map(util.constructUserResponse);
+    res.status(200).json({
+      message: 'Accounts have been retrieved successfully.',
+      users: allUsers
+    });
+  }
+);
+
 export {router as userRouter};

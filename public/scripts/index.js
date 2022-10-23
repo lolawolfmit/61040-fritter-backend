@@ -52,7 +52,8 @@ const formsAndHandlers = {
   'endorse-freet': endorseFreet,
   'denounce-freet': denounceFreet,
   'unendorse-freet': unendorseFreet,
-  'undenounce-freet': undenounceFreet
+  'undenounce-freet': undenounceFreet,
+  'get-recommended': getRecommended
 };
 
 // Attach handlers to forms
