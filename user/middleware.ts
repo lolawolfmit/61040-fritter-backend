@@ -178,6 +178,20 @@ const isUserAlreadyFollowingTargetUser = async (req: Request, res: Response, nex
 };
 
 /**
+ * Checks if the user has any interests
+ */
+ const isUserHasInterests = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+    if (user.interests.length) {
+      next();
+    } else {
+      res.status(404).json({error: 'You do not currently have any interests added.'});
+    }
+  }; 
+ }
+
+/**
  * Checks if the user is logged in, that is, whether the userId is set in session
  */
 const isUserLoggedIn = (req: Request, res: Response, next: NextFunction) => {
@@ -229,6 +243,7 @@ const isAuthorExists = async (req: Request, res: Response, next: NextFunction) =
   next();
 };
 
+
 export {
   isCurrentSessionUserExists,
   isUserLoggedIn,
@@ -241,5 +256,6 @@ export {
   isUserNotYetFollowingTargetUser,
   isUserAlreadyFollowingTargetUser,
   isUserAlreadyAddedInterest,
-  isUserNotYetAddedInterest
+  isUserNotYetAddedInterest,
+  isUserHasInterests
 };

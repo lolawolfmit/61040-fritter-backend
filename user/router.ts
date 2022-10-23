@@ -158,6 +158,7 @@ router.put(
  * 
  * @return {UserResponse} - The updated user
  * @throws {403} - If user is not logged in
+ * @throws {409} - If user is not yet following the user they are requesting to unfollow
  */
  router.delete(
   '/followers',
@@ -262,16 +263,17 @@ router.delete(
  * 
  * @return {UserResponse[]} - An array of recommended users
  * @throws {403} - If the user is not logged in
+ * @throws {404} - If the user does not have any interests
  */
  router.get(
   '/recommended',
   [
-    userValidator.isUserLoggedIn
+    userValidator.isUserLoggedIn,
+    userValidator.isUserHasInterests
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const allUsers = await UserCollection.findRecommended(userId);
-    // const response = allUsers.map(util.constructUserResponse);
     res.status(200).json({
       message: 'Accounts have been retrieved successfully.',
       users: allUsers

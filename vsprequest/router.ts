@@ -17,12 +17,16 @@ const router = express.Router();
  *
  * @param {string} content - justification for VSP request
  * @return {VSPRequestResponse} - The created request
+ * @throws {403} - If the user is not signed in
+ * @throws {409} - If the user is already a VSP or has already created a request
  *
  */
 router.post(
   '/',
   [
-    userValidator.isUserLoggedIn
+    userValidator.isUserLoggedIn,
+    vspRequestValidator.isUserAlreadyVSP,
+    vspRequestValidator.isUserAlreadySubmittedRequest
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? '';
@@ -42,13 +46,18 @@ router.post(
  *
  * @param {string} username - The requesting user's username
  * @return {VSPRequestResponse} - The updated request and user
- * 
+ * @throws {403} - If the user is not signed in
+ * @throws {401} - If the user does not have admin credentials
+ * @throws {404} - If the request does not exist
+ * @throws {409} - If the request was already accepted
  */
 router.put(
   '/',
   [
-    userValidator.isUserLoggedIn
-    // check for admin
+    userValidator.isUserLoggedIn,
+    vspRequestValidator.isUserAdmin,
+    vspRequestValidator.isRequestExists,
+    vspRequestValidator.isRequestAlreadyAccepted
   ],
   async (req: Request, res: Response) => {
     const vsprequest = await VSPRequestCollection.acceptOne(req.body.username);
@@ -73,12 +82,18 @@ router.put(
  * @param {string} username - The VSP user's username
  * @return {VSPRequestResponse} - The updated request and user
  * 
+ * @throws {403} - If the user is not signed in
+ * @throws {401} - If the user does not have admin credentials
+ * @throws {404} - If the request does not exist
+ * @throws {409} - If the request has not yet been granted
  */
  router.delete(
   '/vspstatus',
   [
-    userValidator.isUserLoggedIn
-    // check for admin
+    userValidator.isUserLoggedIn,
+    vspRequestValidator.isUserAdmin,
+    vspRequestValidator.isRequestExists,
+    vspRequestValidator.isRequestNotYetGranted
   ],
   async (req: Request, res: Response) => {
     const vsprequest = await VSPRequestCollection.ungrantOne(req.body.username);
@@ -96,18 +111,19 @@ router.put(
 
 
 /**
- * Get all requests.
+ * Get all requests that have not been accepted.
  *
  * @name GET /api/vsprequest
  *
  * @return {VSPRequestResponse[]} - The updated request
- * 
+ * @throws {403} - If the user is not signed in
+ * @throws {401} - If the user does not have admin credentials
  */
  router.get(
   '/',
   [
-    userValidator.isUserLoggedIn
-    // check for admin
+    userValidator.isUserLoggedIn,
+    vspRequestValidator.isUserAdmin
   ],
   async (req: Request, res: Response) => {
     const vsprequests = await VSPRequestCollection.getAll();
@@ -125,12 +141,14 @@ router.put(
  *
  * @param {string} username - The username of the user associated with the VSP request
  * @return {string} - A success message
- * @throws {403} - If the user is not logged in
+ * @throws {403} - If the user is not signed in
+ * @throws {401} - If the user does not have admin credentials
  */
 router.delete(
   '/',
   [
-    userValidator.isUserLoggedIn
+    userValidator.isUserLoggedIn,
+    vspRequestValidator.isUserAdmin
   ],
   async (req: Request, res: Response) => {
     await VSPRequestCollection.deleteOne(req.body.username);

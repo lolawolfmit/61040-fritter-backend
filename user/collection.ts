@@ -95,10 +95,12 @@ class UserCollection {
         }
       }
       let authorsToFollow: HydratedDocument<User>[] = [];
+      let authorNames: String[] = [];
       for (let eachFreet of interestingFreets) {
         let freetAuthor = await this.findOneByUserId(eachFreet.authorId);
-        if (!authorsToFollow.includes(freetAuthor)) {
+        if (!authorNames.includes(freetAuthor.username)) {
           authorsToFollow.push(freetAuthor);
+          authorNames.push(freetAuthor.username);
         }
       }
       return authorsToFollow;

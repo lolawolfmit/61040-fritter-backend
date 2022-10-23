@@ -179,12 +179,19 @@ router.put(
  * @throws {403} - if the user is not logged in or not the author of
  *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
  * @throws {404} - If the freetId is not valid
+ * @throws {409} - If the user has already endorsed or denounced the freet
+ * @throws {403} - If freet is an opinion
+ * @throws {403} - If user is not a VSP
  */
  router.patch(
   '/endorsements',
   [
     // userValidator.isUserLoggedIn, // TODO FIX
-    freetValidator.isFreetExists
+    freetValidator.isFreetExists,
+    freetValidator.isUserAlreadyEndorsed,
+    freetValidator.isUserAlreadyDenounced,
+    freetValidator.isFreetAFact,
+    freetValidator.isUserVSP
   ],
   async (req: Request, res: Response) => {
     const freet = await FreetCollection.addOneEndorsement(req.body.freetId, req.session.userId);
@@ -204,12 +211,18 @@ router.put(
  * @throws {403} - if the user is not logged in or not the author of
  *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
  * @throws {404} - If the freetId is not valid
+ * @throws {409} - If the user has not yet endorsed the freet
+ * @throws {403} - If freet is an opinion
+ * @throws {403} - If user is not a VSP
  */
  router.patch(
   '/unendorsements',
   [
     // userValidator.isUserLoggedIn, // TODO FIX
-    freetValidator.isFreetExists
+    freetValidator.isFreetExists,
+    freetValidator.isUserNotYetEndorsed,
+    freetValidator.isFreetAFact,
+    freetValidator.isUserVSP
   ],
   async (req: Request, res: Response) => {
     console.log(req.body);
@@ -230,12 +243,19 @@ router.put(
  * @throws {403} - if the user is not logged in or not the author of
  *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
  * @throws {404} - If the freetId is not valid
+ * @throws {409} - If the user has already endorsed or denounced the freet
+ * @throws {403} - If freet is an opinion
+ * @throws {403} - If user is not a VSP
  */
  router.patch(
   '/denouncements',
   [
     // userValidator.isUserLoggedIn, // TODO FIX
-    freetValidator.isFreetExists
+    freetValidator.isFreetExists,
+    freetValidator.isUserAlreadyDenounced,
+    freetValidator.isUserAlreadyEndorsed,
+    freetValidator.isFreetAFact,
+    freetValidator.isUserVSP
   ],
   async (req: Request, res: Response) => {
     const freet = await FreetCollection.addOneDenouncement(req.body.freetId, req.session.userId);
@@ -255,12 +275,18 @@ router.put(
  * @throws {403} - if the user is not logged in or not the author of
  *                 of the freet // TODO FIX! AUTHORSHIP DOES NOT MATTER
  * @throws {404} - If the freetId is not valid
+ * @throws {409} - If the user has not yet denounced the freet
+ * @throws {403} - If freet is an opinion
+ * @throws {403} - If user is not a VSP
  */
  router.patch(
   '/undenouncements',
   [
     // userValidator.isUserLoggedIn, // TODO FIX
-    freetValidator.isFreetExists
+    freetValidator.isFreetExists,
+    freetValidator.isUserNotYetDenounced,
+    freetValidator.isFreetAFact,
+    freetValidator.isUserVSP
   ],
   async (req: Request, res: Response) => {
     const freet = await FreetCollection.deleteOneDenouncement(req.body.freetId, req.session.userId);
