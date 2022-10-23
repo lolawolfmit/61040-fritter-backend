@@ -10,7 +10,7 @@ import FreetModel from './model';
 const router = express.Router();
 
 /**
- * Get all the freets
+ * Get all the freets.
  *
  * @name GET /api/freets
  *
@@ -116,7 +116,7 @@ router.post(
 );
 
 /**
- * Delete a freet
+ * Delete a freet.
  *
  * @name DELETE /api/freets/:id
  *
@@ -141,7 +141,7 @@ router.delete(
 );
 
 /**
- * Modify a freet
+ * Modify a freet.
  *
  * @name PUT /api/freets/:id
  *
@@ -171,7 +171,7 @@ router.put(
 );
 
 /**
- * Endorse a freet
+ * Endorse a freet.
  * 
  * @name PATCH /api/freets/endorsements
  * 
@@ -203,7 +203,7 @@ router.put(
 );
 
 /**
- * Unendorse a freet
+ * Unendorse a freet.
  * 
  * @name PATCH /api/freets/unendorsements
  * 
@@ -235,7 +235,7 @@ router.put(
 );
 
 /**
- * Denounce a freet
+ * Denounce a freet.
  * 
  * @name PATCH /api/freets/denouncements
  * 
@@ -267,7 +267,7 @@ router.put(
 );
 
 /**
- * Undenounce a freet
+ * Undenounce a freet.
  * 
  * @name DELETE /api/freets/undenouncements
  * 
