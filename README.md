@@ -149,7 +149,7 @@ This renders the `index.html` file that will be used to interact with the backen
 
 **Throws**
 
-- `403` if the user is not logged in
+- `403` if the user is not logged in or trying to follow themselves
 - `409` if user is already following the user they are requesting to follow
 
 #### `DELETE /api/users/followers` - Unfollow a user
