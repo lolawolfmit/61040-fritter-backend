@@ -140,6 +140,25 @@ const isUserAlreadyFollowingTargetUser = async (req: Request, res: Response, nex
 };
 
 /**
+ * Checks if user is trying to follow themselves.
+ */
+ const isUserTryingToFollowSelf = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.userId) {
+    const user = await UserCollection.findOneByUserId(req.session.userId);
+    if (user.username === req.body.following) {
+      res.status(403).json({
+        error: {
+          password: 'You cannot follow yourself.'
+        }
+      });
+      return;
+    }
+  }
+  
+  next();
+};
+
+/**
  * Checks if the user has already added a certain interest (cannot be added again)
  */
  const isUserAlreadyAddedInterest = async (req: Request, res: Response, next: NextFunction) => {
@@ -257,5 +276,6 @@ export {
   isUserAlreadyFollowingTargetUser,
   isUserAlreadyAddedInterest,
   isUserNotYetAddedInterest,
-  isUserHasInterests
+  isUserHasInterests,
+  isUserTryingToFollowSelf
 };

@@ -132,14 +132,15 @@ router.put(
  * @param following - The username of the user to follow
  * 
  * @return {UserResponse} - The updated user
- * @throws {403} - If user is not logged in
+ * @throws {403} - If user is not logged in or trying to follow themselves
  * @throws {409} - If user is already following the user they are requesting to follow
  */
  router.patch(
   '/followers',
   [
     userValidator.isUserLoggedIn,
-    userValidator.isUserAlreadyFollowingTargetUser
+    userValidator.isUserAlreadyFollowingTargetUser,
+    userValidator.isUserTryingToFollowSelf
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
